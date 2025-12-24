@@ -31,10 +31,18 @@ export interface Player {
     isJailed: boolean;
     jailTurns: number;
     properties: number[]; // Array of space IDs
+    avatarUrl: string; // Pokemon sprite URL
+}
+
+export interface PlayerConfig {
+    name: string;
+    avatarUrl: string;
+    color: string;
 }
 
 export interface GameSettings {
     playerCount: number;
     initialMoney: number;
     victoryTarget: number;
+    playerConfigs: PlayerConfig[];
 }

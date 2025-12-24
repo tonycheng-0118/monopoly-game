@@ -73,6 +73,22 @@
     width: 100%;
 }
 
+.player-token-wrapper {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    /* Optional: circle background */
+    margin: 1px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s;
+    z-index: 20;
+}
+
+.player-token-wrapper:hover {
+    transform: scale(1.5);
+    z-index: 30;
+}
+
 .player-token {
     width: 15px;
     height: 15px;

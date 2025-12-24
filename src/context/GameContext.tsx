@@ -66,16 +66,17 @@ const getOwnerId = (state: GameState, propertyId: number): number | null => {
 function gameReducer(state: GameState, action: Action): GameState {
     switch (action.type) {
         case 'START_GAME': {
-            const { playerCount, initialMoney } = action.payload.settings;
-            const newPlayers: Player[] = Array.from({ length: playerCount }).map((_, i) => ({
+            const { initialMoney, playerConfigs } = action.payload.settings;
+            const newPlayers: Player[] = playerConfigs.map((config, i) => ({
                 id: i + 1,
-                name: `玩家 ${i + 1}`,
+                name: config.name,
                 money: initialMoney,
                 position: 0,
-                color: PLAYER_COLORS[i % PLAYER_COLORS.length],
+                color: config.color,
                 isJailed: false,
                 jailTurns: 0,
                 properties: [],
+                avatarUrl: config.avatarUrl,
             }));
 
             return {
@@ -83,7 +84,7 @@ function gameReducer(state: GameState, action: Action): GameState {
                 players: newPlayers,
                 settings: action.payload.settings,
                 gamePhase: 'ROLL',
-                logs: ['遊戲開始！', `初始金額: $${initialMoney}`],
+                logs: ['遊戲開始！', `初始金額: $${initialMoney}`, '各位訓練家準備好了！'],
             };
         }
         case 'ROLL_DICE': {

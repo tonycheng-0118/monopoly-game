@@ -42,7 +42,12 @@ export default function Space({ space, players }: SpaceProps) {
                 {/* Render Players */}
                 <div className="players-container">
                     {players.map(player => (
-                        <div key={player.id} className="player-token" style={{ backgroundColor: player.color }} title={player.name}>
+                        <div key={player.id} className="player-token-wrapper" title={player.name}>
+                            <img
+                                src={player.avatarUrl}
+                                alt={player.name}
+                                style={{ width: '100%', height: '100%', objectFit: 'contain' }} // Inline style for now, or move to CSS
+                            />
                         </div>
                     ))}
                 </div>
