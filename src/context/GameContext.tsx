@@ -1,11 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
-import { Player } from '../types/game';
+import { Player, GameSettings } from '../types/game';
 import { BOARD_CONFIG } from '../data/boardConfig';
 
 // Define Game Phases
-export type GamePhase = 'ROLL' | 'MOVING' | 'ACTION' | 'END_TURN';
+export type GamePhase = 'SETUP' | 'ROLL' | 'MOVING' | 'ACTION' | 'END_TURN';
 
 // Define Modal Interface
 interface ModalState {
@@ -23,7 +23,8 @@ export interface GameState {
     gamePhase: GamePhase;
     logs: string[];
     modal: ModalState;
-    propertiesOffset: Record<number, number>; // Mapping property ID to Owner ID (0 means bank/unowned? No, players IDs are 1-4. 0 is none)
+    propertiesOffset: Record<number, number>; // Mapping property ID to Owner ID
+    settings?: GameSettings;
 }
 
 // Define Actions (Updated)
@@ -36,22 +37,22 @@ type Action =
     | { type: 'PAY_RENT'; payload: { fromPlayerId: number; toPlayerId: number; amount: number } }
     | { type: 'OPEN_MODAL'; payload: { type: 'BUY' | 'RENT' | 'MESSAGE'; data: any } }
     | { type: 'CLOSE_MODAL'; payload: null }
-    | { type: 'SETUP_GAME'; payload: null }; // Initialize properties ownership
+    | { type: 'START_GAME'; payload: { settings: GameSettings } };
 
 // Initial State (Updated)
 const INITIAL_STATE: GameState = {
-    players: [
-        { id: 1, name: '玩家 1', money: 1500, position: 0, color: 'red', isJailed: false, jailTurns: 0, properties: [] },
-        { id: 2, name: '玩家 2', money: 1500, position: 0, color: 'blue', isJailed: false, jailTurns: 0, properties: [] },
-    ],
+    players: [], // Start empty, init in START_GAME
     currentPlayerIndex: 0,
     dice: [0, 0],
     isDoubles: false,
-    gamePhase: 'ROLL',
-    logs: ['遊戲開始！'],
+    gamePhase: 'SETUP', // Start in SETUP
+    logs: [],
     modal: { isOpen: false, type: null, data: null },
-    propertiesOffset: {}, // Not used, using player.properties for ownership source of truth
+    propertiesOffset: {},
 };
+
+// Colors for dynamic players
+const PLAYER_COLORS = ['red', 'blue', 'green', 'orange'];
 
 // Helper: Get Property Owner
 const getOwnerId = (state: GameState, propertyId: number): number | null => {
@@ -64,6 +65,27 @@ const getOwnerId = (state: GameState, propertyId: number): number | null => {
 // Reducer
 function gameReducer(state: GameState, action: Action): GameState {
     switch (action.type) {
+        case 'START_GAME': {
+            const { playerCount, initialMoney } = action.payload.settings;
+            const newPlayers: Player[] = Array.from({ length: playerCount }).map((_, i) => ({
+                id: i + 1,
+                name: `玩家 ${i + 1}`,
+                money: initialMoney,
+                position: 0,
+                color: PLAYER_COLORS[i % PLAYER_COLORS.length],
+                isJailed: false,
+                jailTurns: 0,
+                properties: [],
+            }));
+
+            return {
+                ...state,
+                players: newPlayers,
+                settings: action.payload.settings,
+                gamePhase: 'ROLL',
+                logs: ['遊戲開始！', `初始金額: $${initialMoney}`],
+            };
+        }
         case 'ROLL_DICE': {
             const [d1, d2] = action.payload.dice;
             return {

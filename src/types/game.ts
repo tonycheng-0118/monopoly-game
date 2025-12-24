@@ -32,3 +32,9 @@ export interface Player {
     jailTurns: number;
     properties: number[]; // Array of space IDs
 }
+
+export interface GameSettings {
+    playerCount: number;
+    initialMoney: number;
+    victoryTarget: number;
+}
