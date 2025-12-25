@@ -6,6 +6,7 @@ import GameBoard from './GameBoard';
 import Controls from './Controls';
 import GameModal from './GameModal';
 import SetupScreen from './SetupScreen';
+import TurnOverlay from './TurnOverlay';
 
 function GameContent() {
     const { state } = useGame();
@@ -23,6 +24,7 @@ function GameContent() {
             <GameBoard />
             <Controls />
             <GameModal />
+            <TurnOverlay />
         </main>
     );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Space as SpaceType, Player } from '../types/game';
+import { useGame } from '../context/GameContext';
 
 interface SpaceProps {
     space: SpaceType;
@@ -20,6 +21,7 @@ const GROUP_COLORS: Record<string, string> = {
 };
 
 export default function Space({ space, players }: SpaceProps) {
+    const { state } = useGame();
     const isCorner = space.id % 10 === 0;
 
     // Style for the color bar
@@ -41,15 +43,25 @@ export default function Space({ space, players }: SpaceProps) {
 
                 {/* Render Players */}
                 <div className="players-container">
-                    {players.map(player => (
-                        <div key={player.id} className="player-token-wrapper" title={player.name}>
-                            <img
-                                src={player.avatarUrl}
-                                alt={player.name}
-                                style={{ width: '100%', height: '100%', objectFit: 'contain' }} // Inline style for now, or move to CSS
-                            />
-                        </div>
-                    ))}
+                    {players.map(player => {
+                        // Check if this player is the current player AND moving
+                        const isActive = player.id === state.players[state.currentPlayerIndex].id;
+                        const isMoving = state.gamePhase === 'MOVING' && isActive;
+
+                        return (
+                            <div
+                                key={player.id}
+                                className={`player-token-wrapper ${isMoving ? 'is-moving' : ''}`}
+                                title={player.name}
+                            >
+                                <img
+                                    src={player.avatarUrl}
+                                    alt={player.name}
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>

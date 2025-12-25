@@ -25,11 +25,13 @@ export interface GameState {
     modal: ModalState;
     propertiesOffset: Record<number, number>; // Mapping property ID to Owner ID
     settings?: GameSettings;
+    stepsRemaining: number;
 }
 
 // Define Actions (Updated)
 type Action =
     | { type: 'ROLL_DICE'; payload: { dice: [number, number] } }
+    | { type: 'MOVE_STEP'; payload: null }
     | { type: 'SET_POSITION'; payload: { playerId: number; position: number } }
     | { type: 'END_TURN'; payload: null }
     | { type: 'ADD_LOG'; payload: string }
@@ -49,6 +51,7 @@ const INITIAL_STATE: GameState = {
     logs: [],
     modal: { isOpen: false, type: null, data: null },
     propertiesOffset: {},
+    stepsRemaining: 0,
 };
 
 // Colors for dynamic players
@@ -94,7 +97,35 @@ function gameReducer(state: GameState, action: Action): GameState {
                 dice: [d1, d2],
                 isDoubles: d1 === d2,
                 gamePhase: 'MOVING',
+                stepsRemaining: d1 + d2,
                 logs: [...state.logs, `${state.players[state.currentPlayerIndex].name} 擲出了 ${d1} 和 ${d2}`],
+            };
+        }
+        case 'MOVE_STEP': {
+            const currentPlayerIndex = state.currentPlayerIndex;
+            const player = state.players[currentPlayerIndex];
+            const newPosition = (player.position + 1) % 40;
+            const newStepsRemaining = state.stepsRemaining - 1;
+
+            const updatedPlayers = state.players.map((p, i) =>
+                i === currentPlayerIndex ? { ...p, position: newPosition } : p
+            );
+
+            // Check if passed GO (from 39 to 0)
+            let money = player.money;
+            let logs = state.logs;
+            if (player.position === 39 && newPosition === 0) {
+                money += 200;
+                logs = [...logs, `${player.name} 經過起點，獲得 $200`];
+                updatedPlayers[currentPlayerIndex].money = money;
+            }
+
+            return {
+                ...state,
+                players: updatedPlayers,
+                stepsRemaining: newStepsRemaining,
+                gamePhase: newStepsRemaining === 0 ? 'ACTION' : 'MOVING',
+                logs: logs,
             };
         }
         case 'SET_POSITION': {
@@ -161,6 +192,17 @@ const GameContext = createContext<{
 // Provider
 export function GameProvider({ children }: { children: ReactNode }) {
     const [state, dispatch] = useReducer(gameReducer, INITIAL_STATE);
+
+    // Movement Animation Loop
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (state.gamePhase === 'MOVING' && state.stepsRemaining > 0) {
+            timer = setTimeout(() => {
+                dispatch({ type: 'MOVE_STEP', payload: null });
+            }, 300); // 300ms per step
+        }
+        return () => clearTimeout(timer);
+    }, [state.gamePhase, state.stepsRemaining]);
 
     // Game Logic Effect
     useEffect(() => {
