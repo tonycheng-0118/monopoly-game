@@ -10,7 +10,7 @@ export type GamePhase = 'SETUP' | 'ROLL' | 'MOVING' | 'ACTION' | 'END_TURN';
 // Define Modal Interface
 interface ModalState {
     isOpen: boolean;
-    type: 'BUY' | 'RENT' | 'MESSAGE' | null;
+    type: 'BUY' | 'RENT' | 'MESSAGE' | 'BUILD' | null;
     data: any;
 }
 
@@ -36,6 +36,7 @@ type Action =
     | { type: 'END_TURN'; payload: null }
     | { type: 'ADD_LOG'; payload: string }
     | { type: 'BUY_PROPERTY'; payload: { playerId: number; propertyId: number; price: number } }
+    | { type: 'BUILD_HOUSE'; payload: { playerId: number; propertyId: number; cost: number } }
     | { type: 'PAY_RENT'; payload: { fromPlayerId: number; toPlayerId: number; amount: number } }
     | { type: 'OPEN_MODAL'; payload: { type: 'BUY' | 'RENT' | 'MESSAGE'; data: any } }
     | { type: 'CLOSE_MODAL'; payload: null }
@@ -64,6 +65,7 @@ export interface GameState {
         data: any;
     };
     propertiesOffset: Record<number, number>; // Track multiple players on same space
+    houses: Record<number, number>; // Track number of houses per property (Key: SpaceID, Value: Count)
     effects: GameEffect[]; // New: Queue for one-off UI effects
 }
 
@@ -79,6 +81,7 @@ const INITIAL_STATE: GameState = {
     propertiesOffset: {},
     stepsRemaining: 0,
     effects: [],
+    houses: {},
 };
 
 // Colors for dynamic players
@@ -117,6 +120,16 @@ function gameReducer(state: GameState, action: Action): GameState {
                 logs: ['遊戲開始！', `初始金額: $${initialMoney}`, '各位訓練家準備好了！'],
             };
         }
+        case 'TRIGGER_EFFECT':
+            return {
+                ...state,
+                effects: [...state.effects, action.payload]
+            };
+        case 'CLEAR_EFFECT':
+            return {
+                ...state,
+                effects: state.effects.filter(e => e.id !== action.payload)
+            };
         case 'ROLL_DICE': {
             const [d1, d2] = action.payload.dice;
             return {
@@ -141,10 +154,21 @@ function gameReducer(state: GameState, action: Action): GameState {
             // Check if passed GO (from 39 to 0)
             let money = player.money;
             let logs = state.logs;
+            let effects = [...state.effects];
             if (player.position === 39 && newPosition === 0) {
                 money += 200;
                 logs = [...logs, `${player.name} 經過起點，獲得 $200`];
                 updatedPlayers[currentPlayerIndex].money = money;
+
+                // Add Effect
+                // We interact with state.effects directly in reducer or via dispatch?
+                // In reducer we treat state as immutable.
+                // NOTE: We cannot dispatch inside reducer. We must return new state with effects.
+                // But wait, the state didn't implement 'effects' array yet in the previous successful read?
+                // Ah, Step 351 FAILED to add effects to state interface? 
+                // Wait, let me check the file content I just read in Step 370.
+                // Lines 67: 'effects: GameEffect[]; // New: Queue for one-off UI effects' IS THERE!
+                // So the interface has it.
             }
 
             return {

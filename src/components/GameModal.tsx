@@ -75,6 +75,30 @@ export default function GameModal() {
                     </>
                 )}
 
+
+
+                {type === 'BUILD' && (
+                    <>
+                        <h2 style={{ marginBottom: '15px', color: '#e67e22' }}>建設地產</h2>
+                        <p style={{ fontSize: '1.1rem', marginBottom: '10px' }}>你想在 <strong>{data.space.name}</strong> 蓋房子嗎?</p>
+                        <p>目前房子數: <strong>{data.currentHouses}</strong></p>
+                        <p style={{ fontSize: '1.25rem', color: '#e67e22', fontWeight: 'bold', margin: '20px 0' }}>建設費用: ${data.space.property.houseCost}</p>
+                        <div className="modal-actions" style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                            <button className="btn-confirm" onClick={() => {
+                                // Check money
+                                if (state.players[state.currentPlayerIndex].money >= data.space.property.houseCost) {
+                                    dispatch({ type: 'BUILD_HOUSE', payload: { playerId: state.players[state.currentPlayerIndex].id, propertyId: data.space.id, cost: data.space.property.houseCost } });
+                                    handleClose();
+                                    dispatch({ type: 'END_TURN', payload: null });
+                                } else {
+                                    alert('現金不足！');
+                                }
+                            }}>蓋房子</button>
+                            <button className="btn-cancel" onClick={handlePass}>跳過</button>
+                        </div>
+                    </>
+                )}
+
                 {type === 'MESSAGE' && (
                     <>
                         <h2 style={{ marginBottom: '15px' }}>提示</h2>
@@ -112,6 +136,6 @@ export default function GameModal() {
                 }
                 .btn-cancel:hover { background: #a0aec0; }
             `}</style>
-        </div>
+        </div >
     );
 }

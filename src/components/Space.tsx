@@ -46,6 +46,17 @@ export default function Space({ space, players }: SpaceProps) {
                 {space.property && !isCorner && (
                     <div className="color-bar" style={colorStyle}>
                         {owner && <div className="owner-tag" style={{ backgroundColor: owner.color }}></div>}
+                        {state.houses?.[space.id] > 0 && (
+                            <div className="house-container" style={{
+                                position: 'absolute', top: '2px', left: '2px',
+                                display: 'flex', gap: '1px', fontSize: '0.8rem'
+                            }}>
+                                {state.houses[space.id] <= 3
+                                    ? Array(state.houses[space.id]).fill('🏠').map((_, i) => <span key={i}>🏠</span>)
+                                    : <span style={{ background: 'rgba(255,255,255,0.8)', borderRadius: '4px', padding: '0 2px' }}>🏠x{state.houses[space.id]}</span>
+                                }
+                            </div>
+                        )}
                     </div>
                 )}
                 <div className="space-name">{space.name}</div>
