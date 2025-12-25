@@ -39,19 +39,46 @@ type Action =
     | { type: 'PAY_RENT'; payload: { fromPlayerId: number; toPlayerId: number; amount: number } }
     | { type: 'OPEN_MODAL'; payload: { type: 'BUY' | 'RENT' | 'MESSAGE'; data: any } }
     | { type: 'CLOSE_MODAL'; payload: null }
-    | { type: 'START_GAME'; payload: { settings: GameSettings } };
+    | { type: 'START_GAME'; payload: { settings: GameSettings } }
+    | { type: 'TRIGGER_EFFECT'; payload: GameEffect }
+    | { type: 'CLEAR_EFFECT'; payload: string }; // Remove effect by ID
+
+// Effect Interface
+export interface GameEffect {
+    id: string;
+    type: 'FLOAT_TEXT' | 'PLAY_SOUND';
+    data: any;
+}
+
+export interface GameState {
+    players: Player[];
+    currentPlayerIndex: number;
+    dice: [number, number];
+    isDoubles: boolean;
+    gamePhase: GamePhase;
+    logs: string[];
+    stepsRemaining: number;
+    modal: {
+        isOpen: boolean;
+        type: 'BUY' | 'RENT' | 'MESSAGE' | null;
+        data: any;
+    };
+    propertiesOffset: Record<number, number>; // Track multiple players on same space
+    effects: GameEffect[]; // New: Queue for one-off UI effects
+}
 
 // Initial State (Updated)
 const INITIAL_STATE: GameState = {
-    players: [], // Start empty, init in START_GAME
+    players: [],
     currentPlayerIndex: 0,
     dice: [0, 0],
     isDoubles: false,
-    gamePhase: 'SETUP', // Start in SETUP
+    gamePhase: 'SETUP',
     logs: [],
     modal: { isOpen: false, type: null, data: null },
     propertiesOffset: {},
     stepsRemaining: 0,
+    effects: [],
 };
 
 // Colors for dynamic players

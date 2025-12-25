@@ -24,14 +24,29 @@ export default function Space({ space, players }: SpaceProps) {
     const { state } = useGame();
     const isCorner = space.id % 10 === 0;
 
+    // Check ownership
+    const owner = state.players.find(p => p.properties.includes(space.id));
+
     // Style for the color bar
     const colorStyle = space.property?.group ? { backgroundColor: GROUP_COLORS[space.property.group] } : {};
 
+    // Ownership style
+    const spaceStyle = owner ? {
+        boxShadow: `inset 0 0 0 4px ${owner.color}`,
+        background: '#fff9c4' // Light yellow bg for owned properties
+    } : {};
+
     return (
-        <div className={`space space-${space.type.toLowerCase()} ${isCorner ? 'corner' : ''}`} id={`space-${space.id}`}>
+        <div
+            className={`space space-${space.type.toLowerCase()} ${isCorner ? 'corner' : ''}`}
+            id={`space-${space.id}`}
+            style={spaceStyle}
+        >
             <div className="space-content">
                 {space.property && !isCorner && (
-                    <div className="color-bar" style={colorStyle}></div>
+                    <div className="color-bar" style={colorStyle}>
+                        {owner && <div className="owner-tag" style={{ backgroundColor: owner.color }}></div>}
+                    </div>
                 )}
                 <div className="space-name">{space.name}</div>
                 {space.property && (
