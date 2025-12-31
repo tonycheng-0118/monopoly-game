@@ -26,6 +26,8 @@ export interface GameState {
     propertiesOffset: Record<number, number>; // Mapping property ID to Owner ID
     settings?: GameSettings;
     stepsRemaining: number;
+    houses: Record<number, number>; // Track number of houses per property (Key: SpaceID, Value: Count)
+    effects: GameEffect[]; // New: Queue for one-off UI effects
 }
 
 // Define Actions (Updated)
@@ -38,7 +40,7 @@ type Action =
     | { type: 'BUY_PROPERTY'; payload: { playerId: number; propertyId: number; price: number } }
     | { type: 'BUILD_HOUSE'; payload: { playerId: number; propertyId: number; cost: number } }
     | { type: 'PAY_RENT'; payload: { fromPlayerId: number; toPlayerId: number; amount: number } }
-    | { type: 'OPEN_MODAL'; payload: { type: 'BUY' | 'RENT' | 'MESSAGE'; data: any } }
+    | { type: 'OPEN_MODAL'; payload: { type: 'BUY' | 'RENT' | 'MESSAGE' | 'BUILD'; data: any } }
     | { type: 'CLOSE_MODAL'; payload: null }
     | { type: 'START_GAME'; payload: { settings: GameSettings } }
     | { type: 'TRIGGER_EFFECT'; payload: GameEffect }
@@ -51,23 +53,7 @@ export interface GameEffect {
     data: any;
 }
 
-export interface GameState {
-    players: Player[];
-    currentPlayerIndex: number;
-    dice: [number, number];
-    isDoubles: boolean;
-    gamePhase: GamePhase;
-    logs: string[];
-    stepsRemaining: number;
-    modal: {
-        isOpen: boolean;
-        type: 'BUY' | 'RENT' | 'MESSAGE' | null;
-        data: any;
-    };
-    propertiesOffset: Record<number, number>; // Track multiple players on same space
-    houses: Record<number, number>; // Track number of houses per property (Key: SpaceID, Value: Count)
-    effects: GameEffect[]; // New: Queue for one-off UI effects
-}
+
 
 // Initial State (Updated)
 const INITIAL_STATE: GameState = {
