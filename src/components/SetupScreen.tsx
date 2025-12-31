@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { PlayerConfig } from '../types/game';
 
-const PLAYER_COLORS = ['red', 'blue', 'green', 'orange'];
+const PLAYER_COLORS = ['red', 'blue', 'green', 'orange', 'purple'];
 
 export default function SetupScreen() {
   const { dispatch } = useGame();
@@ -62,7 +62,7 @@ export default function SetupScreen() {
         <input
           type="range"
           min="2"
-          max="4"
+          max="5"
           step="1"
           value={playerCount}
           onChange={(e) => setPlayerCount(Number(e.target.value))}

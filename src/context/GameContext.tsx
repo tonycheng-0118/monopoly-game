@@ -71,7 +71,7 @@ const INITIAL_STATE: GameState = {
 };
 
 // Colors for dynamic players
-const PLAYER_COLORS = ['red', 'blue', 'green', 'orange'];
+const PLAYER_COLORS = ['red', 'blue', 'green', 'orange', 'purple'];
 
 // Helper: Get Property Owner
 const getOwnerId = (state: GameState, propertyId: number): number | null => {
