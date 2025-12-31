@@ -134,7 +134,7 @@ export default function PlayerStats() {
                     color: #7f8c8d;
                 }
                 .badge {
-                    background: #e74c3c;
+                    background: #6ae73cff;
                     color: white;
                     font-size: 0.6rem;
                     padding: 2px 6px;
